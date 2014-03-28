@@ -24,23 +24,26 @@ public aspect TransactionAspect {
 
 		public InspectedClass(String featureName) {
 			this.featureName = featureName;
-			outputFile = new File(featureName);
+			outputFile = new File(featureName+".data");
 			outputFile.delete();
 			usedClasses = new HashSet<String>();
+            addToFile("\n" + featureName, false);
 		}
 
 		public void addUsedClass(String className) {
-			if(!className.contains("Test"+this.featureName)) {
+			if(!className.contains(this.featureName) && (className.startsWith("zmq") || className.startsWith("org.zeromq")) && className.indexOf('$') == -1) {
 				if(!usedClasses.contains(className)) {					
-					addToFile(className);
+					addToFile(className, true);
 					usedClasses.add(className);
 				}
 			}
 		}
 
-		private void addToFile(String className) {
+        private void addToFile(String className, boolean hasClass) {
 			try (OutputStream os = new FileOutputStream(outputFile, true)) {  
-				os.write((" " + className).getBytes());
+                if(hasClass)
+                    os.write(", ".getBytes());
+                os.write((className.replace('.', '/')+".java").getBytes());
 			} catch (FileNotFoundException ex) {  
 				System.err.println("Missing file " + outputFile.getAbsolutePath());  
 			} catch (IOException ioEx) {
@@ -90,52 +93,52 @@ public aspect TransactionAspect {
 	}
 	
 	before() :  orgzeromqProxy() && exclusion() {
-		String testName = "Proxy";
+		String testName = "org.zeromq.TestProxy";
 		generateInfo(testName, thisEnclosingJoinPointStaticPart);
 	}
 
 	before() :  orgzeromqZLoop() && exclusion() {
-		String testName = "ZLoop";
+		String testName = "org.zeromq.TestZLoop";
 		generateInfo(testName, thisEnclosingJoinPointStaticPart);
 	}
 
 	before() :  orgzeromqZMQ() && exclusion() {
-		String testName = "ZMQ";
+		String testName = "org.zeromq.TestZMQ";
 		generateInfo(testName, thisEnclosingJoinPointStaticPart);
 	}
 
 	before() :  orgzeromqZThread() && exclusion() {
-		String testName = "ZThread";
+		String testName = "org.zeromq.TestZThread";
 		generateInfo(testName, thisEnclosingJoinPointStaticPart);
 	}
 
 	before() :  zmqAddress() && exclusion() {
-		String testName = "Address";
+		String testName = "zmq.TestAddress";
 		generateInfo(testName, thisEnclosingJoinPointStaticPart);
 	}
 
 	before() :  zmqBlob() && exclusion() {
-		String testName = "Blob";
+		String testName = "zmq.TestBlob";
 		generateInfo(testName, thisEnclosingJoinPointStaticPart);
 	}
 
 	before() :  zmqDecoder() && exclusion() {
-		String testName = "Decoder";
+		String testName = "zmq.TestDecoder";
 		generateInfo(testName, thisEnclosingJoinPointStaticPart);
 	}
 
 	before() :  zmqEncoder() && exclusion() {
-		String testName = "Encoder";
+		String testName = "zmq.TestEncoder";
 		generateInfo(testName, thisEnclosingJoinPointStaticPart);
 	}
 
 	before() :  zmqMsgFlags() && exclusion() {
-		String testName = "MsgFlags";
+		String testName = "zmq.TestMsgFlags";
 		generateInfo(testName, thisEnclosingJoinPointStaticPart);
 	}
 
 	before() :  zmqPubSubTcp() && exclusion() {
-		String testName = "PubSubTcp";
+		String testName = "zmq.TestPubSubTcp";
 		generateInfo(testName, thisEnclosingJoinPointStaticPart);
 	}
 
